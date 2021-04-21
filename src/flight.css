@@ -1,0 +1,97 @@
+.flight{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #487dd9;
+    padding: 5px 20px;
+    color: white;
+}
+.header > div:last-of-type{
+    display: flex;
+    flex-direction: column;
+}
+.header > div:last-of-type > span:first-of-type{
+    font-size: 20px;
+    margin-bottom: 5px;
+    text-align: right;
+}
+.segment{
+    margin-bottom: 5px;
+    padding: 10px 20px;
+
+}
+.segment:nth-child(2){
+    border-bottom: 2px solid #487dd9;
+    padding-bottom: 10px;
+}
+
+.from--to{
+    display: flex;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 10px;
+}
+
+.from--to > div > * {
+    margin-right: 5px;
+    white-space: nowrap;
+}
+
+.flight-data{
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.flight-data > div{
+    display: flex;
+    align-items: center;
+}
+.flight-data > div:nth-child(2){
+    height: 100%;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+.flight-data > div:nth-child(2):after,
+.flight-data > div:nth-child(2):before{
+    position: absolute;
+    z-index: -1;
+    bottom: 0;
+    content: "";
+    height: 2px;
+    width: 80%;
+    background-color: #cdcdcd;
+}
+
+.time{
+    font-size: 18px;
+}
+.switch{
+    position: absolute;
+    bottom: -20%;
+    color: #faa758;
+    background-color: white;
+    padding: 0 10px;
+    z-index: 1;
+}
+
+.flight > button{
+    color: white;
+    background: #faa758;
+    border: none;
+    padding: 10px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.airline{
+    margin-bottom: 5px;
+    font-size: 14px;
+}
