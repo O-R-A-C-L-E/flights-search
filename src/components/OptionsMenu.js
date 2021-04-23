@@ -1,30 +1,36 @@
-import React from 'react';
-import {useDispatch, useSelector} from "react-redux";
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from "react-redux";
 import * as Action from '../actions'
 
 const OptionsMenu = () => {
+    const dispatch = useDispatch();
 
-    const dispatch = useDispatch()
+    const [priceFrom, setPriceFrom] = useState(0);
+    const [priceTo, stPriceTo] = useState(150000);
     const filters = useSelector(state => state.reducer.filters);
 
+    const handlePriceDispatch = () => {
+            dispatch(Action.setPriceFrom(priceFrom));
+            dispatch(Action.setPriceTo(priceTo));
+    }
 
-    const onChangeInput = (e) =>{
+    const onChangeInput = (e) => {
         const num = /^[0-9\b]+$/;
         let input = e.target;
-        if (e.target.type === "text" && (e.target.value === "" || num.test(e.target.value))){
-            // allow only numbers in "text" inputs
-            switch (true){
+        if (input.value === "" || num.test(input.value)) {
+            switch (true) {
                 case input.name === "priceFrom":
-                    dispatch(Action.setPriceFrom(e.target.value));
+                    setPriceFrom(parseInt(input.value));
                     break;
                 case input.name === "priceTo":
-                    dispatch(Action.setPriceTo(e.target.value));
+                    stPriceTo(parseInt(input.value));
                     break;
                 default:
                     return;
             }
         }
-        switch (true){
+
+        switch (true) {
             case input.id === "ascending":
                 dispatch(Action.sortAscending());
                 break;
@@ -34,17 +40,11 @@ const OptionsMenu = () => {
             case input.id === "trip-time":
                 dispatch(Action.sortTripTime());
                 break;
-            case input.id === "one-change":
-                dispatch(Action.setFilterOneChange());
+            case input.name === "airlines":
+                dispatch(Action.setAirlines(input.id));
                 break;
-            case input.id === "none-change":
-                dispatch(Action.setFilterNoneChanges());
-                break;
-            case input.id === "lot-polish-air":
-                dispatch(Action.setAirlines("lot-polish-air"));
-                break;
-            case input.id === "rus-air-fleet":
-                dispatch(Action.setAirlines("rus-air-fleet"));
+            case input.name === "transfers":
+                dispatch(Action.setFilterTransfer(parseInt(input.id)));
                 break;
             default:
                 return;
@@ -52,33 +52,45 @@ const OptionsMenu = () => {
     }
 
 
-    const flights = useSelector(state => state.reducer.flights)
+    const flights = useSelector(state => state.reducer.flights);
 
     const filterAirlines =
         flights.map(item => {
+
             return item.flight.legs.map(leg => {
+
                 return leg.segments.map(seg => {
-                    return  seg.airline.caption
-                })
-            })
-        })
 
+                    return seg.airline.caption;
+                });
 
+            });
 
-    let result = new Set();
-    const getAllUniqueAirlines = (arr) =>{
-        if (arr && Array.isArray(arr)){
-            arr.map(item => getAllUniqueAirlines(item));
+        });
+
+    let uniqueAirlinesSet = new Set();
+    const getUniqueValuesFromArray = (arr, result) => {
+        if (arr && Array.isArray(arr)) {
+            arr.map(item => getUniqueValuesFromArray(item, result));
         } else {
             return result.add(arr);
         }
-    }
-    getAllUniqueAirlines(filterAirlines)
-    const uniqueAirlines = [...result];
+    };
+    getUniqueValuesFromArray(filterAirlines, uniqueAirlinesSet);
+    const uniqueAirlines = [...uniqueAirlinesSet];
 
 
+    const filterTransfers = flights.map(item => {
+        return item.flight.legs.map(leg => {
+            return leg.segments.length - 1;
+        })
+    })
+    let uniqueTransfersSet = new Set();
+    getUniqueValuesFromArray(filterTransfers, uniqueTransfersSet);
+    const allTransfers = [...uniqueTransfersSet];
 
-    return(
+
+    return (
         <div className="options">
             <div className="container">
 
@@ -119,40 +131,43 @@ const OptionsMenu = () => {
                     <h4>Фильтровать</h4>
 
 
-
-                    <label>
-                        <input
-                            onChange={(e) => onChangeInput(e)}
-                            id="one-change"
-                            type="checkbox"
-                        /> - 1 пересадка
-                    </label>
-                    <label>
-                        <input
-                            onChange={(e) => onChangeInput(e)}
-                            id="none-change"
-                            type="checkbox"
-                        /> - без пересадок
-                    </label>
+                    {allTransfers.map(item => {
+                        let itemLiteral = item === 0 ? `без пересадок` : item > 1 ? `${item} пересадки` : `${item} пересадка`;
+                        return (
+                            <label key={item}>
+                                <input
+                                    id={item}
+                                    type="checkbox"
+                                    name="transfers"
+                                    onChange={(e) => onChangeInput(e)}
+                                /> - {itemLiteral}
+                            </label>
+                        )
+                    })}
                 </div>
 
                 <div className="options__price">
                     <h4>Цена</h4>
-
                     <label>
                         От <input
-                        type="text"
+                        className="price-input"
+                        required pattern={/[0-9]/}
+                        type="number"
                         name="priceFrom"
-                        value={filters.priceFrom}
-                        onChange={(e) => onChangeInput(e)}
+                        value={priceFrom}
+                        onBlur={e => handlePriceDispatch(e)}
+                        onChange={e => onChangeInput(e)}
                     />
                     </label>
                     <label>
                         До <input
-                        type="text"
+                        className="price-input"
+                        required pattern={/[0-9]/}
+                        type="number"
                         name="priceTo"
-                        value={filters.priceTo}
-                        onChange={(e) => onChangeInput(e)}
+                        value={priceTo}
+                        onBlur={e => handlePriceDispatch(e)}
+                        onChange={e => onChangeInput(e)}
                     />
                     </label>
                 </div>
@@ -160,12 +175,23 @@ const OptionsMenu = () => {
                 <div className="options__airlines">
                     <h4>Авиакомпании</h4>
 
+                    <label className="airline-filter">
+                        <input
+                            id="all"
+                            type="checkbox"
+                            checked={filters.airlines.length === 0}
+                            disabled
+                            name='airlines'
+                            onChange={(e) => onChangeInput(e)}
+                        /> - All airlines
+                    </label>
                     {uniqueAirlines.map(item => {
-                        return(
+                        return (
                             <label key={item} className="airline-filter">
                                 <input
                                     id={item}
                                     type="checkbox"
+                                    name='airlines'
                                     onChange={(e) => onChangeInput(e)}
                                 /> - {item}
                             </label>

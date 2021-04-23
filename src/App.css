@@ -1,6 +1,6 @@
 .wrapper{
     margin: 0 auto;
-    width: 80%;
+    width: 70%;
     max-width: 1440px;
     position: relative;
 }
@@ -8,7 +8,7 @@
     position: relative;
     display: flex;
     display: -webkit-flex;
-    justify-content: flex-end;
+    justify-content: center;
     width: 100%;
 }
 .options{
@@ -43,9 +43,19 @@
 .main-content{
     display: flex;
     flex-direction: column;
-    width: 70%;
+    margin-left: 100px;
+    width: 60%;
 }
 .airline-filter{
     white-space: nowrap;
     font-size: 12px;
 }
+.price-input:first-of-type{
+    margin: 10px 0;
+}
+.price-input::-webkit-inner-spin-button,
+.price-input::-webkit-outer-spin-button{
+    -webkit-appearance: none;
+    margin: 0;
+}
+

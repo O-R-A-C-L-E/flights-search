@@ -1,22 +1,21 @@
 import Type from '../actions/types'
 
-const initialState = {
+export const initialState = {
     flights: [],
 
     filters: {
-        isAscendingPrice: true,
+        isAscendingPrice: false,
         isDescendingPrice: false,
         isTripTime: false,
 
-        isOneChange: false,
-        isNoneChanges: false,
+        transfers: [],
 
-        priceFrom: "0",
-        priceTo: "10000",
+        priceFrom: 0,
+        priceTo: 150000,
 
-        airlines: ["all"]
+        airlines: []
     },
-    limit: 2
+    limit: 4,
 }
 
 export default function flightsStore(state = initialState, action){
@@ -35,7 +34,8 @@ export default function flightsStore(state = initialState, action){
                     isAscendingPrice: !state.filters.isAscendingPrice,
                     isDescendingPrice: false,
                     isTripTime: false
-                }
+                },
+
             }
         case Type.SORT_DESCENDING:
             return {
@@ -45,7 +45,8 @@ export default function flightsStore(state = initialState, action){
                     isAscendingPrice: false,
                     isDescendingPrice: !state.filters.isDescendingPrice,
                     isTripTime: false
-                }
+                },
+
             }
         case Type.SORT_TRIP_TIME:
             return {
@@ -55,22 +56,21 @@ export default function flightsStore(state = initialState, action){
                     isAscendingPrice: false,
                     isDescendingPrice: false,
                     isTripTime: !state.filters.isTripTime
-                }
+                },
             }
-        case Type.FILTER_ONE_CHANGE:
+        case Type.FILTER_BY_TRANSFERS:
+            let transfer = action.payload;
+            let resultTransfers;
+            if (state.filters.transfers.includes(transfer)){
+                resultTransfers = state.filters.transfers.filter(item => item !== transfer);
+            } else {
+                resultTransfers = state.filters.transfers.concat(transfer);
+            }
             return {
                 ...state,
                 filters: {
                     ...state.filters,
-                    isOneChange: !state.filters.isOneChange
-                }
-            }
-        case Type.FILTER_NONE_CHANGES:
-            return {
-                ...state,
-                filters: {
-                    ...state.filters,
-                    isNoneChanges: !state.filters.isNoneChanges
+                    transfers: resultTransfers,
                 }
             }
         case Type.SET_PRICE_FROM:
@@ -87,13 +87,24 @@ export default function flightsStore(state = initialState, action){
                 filters: {
                     ...state.filters,
                     priceTo: action.payload
-                }
+                },
             }
         case Type.SET_AIRLINES:
+            let airline = action.payload;
+            let airlinesResult;
+            if (state.filters.airlines.includes(airline)){
+                airlinesResult = state.filters.airlines.filter(item => {
+                    return item !== airline;
+                })
+            } else {
+                airlinesResult = state.filters.airlines.concat(airline);
+            }
             return {
                 ...state,
                 filters: {
                     ...state.filters,
+                    airlines:airlinesResult,
+
                 }
             }
         case Type.SET_LIMIT:
